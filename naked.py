@@ -23,7 +23,7 @@ logging.config.dictConfig(log_config)
 # Creating logger
 logger = logging.getLogger('root')
 
-print('Asteroid processing service')
+logger.info('Asteroid processing service')
 
 # Initiating and reading config values
 # Nolasa parametrus no ieladeta konfiguracijas faila un saglaba tos python mainigajos
@@ -41,16 +41,16 @@ except:
 # Getting todays date
 dt = datetime.now()
 request_date = str(dt.year) + "-" + str(dt.month).zfill(2) + "-" + str(dt.day).zfill(2)  
-print("Generated today's date: " + str(request_date))
+logger.info("Generated today's date: " + str(request_date))
 
 # Izvada konsole NASA API pilno pieprasijumu un veic GET pieprasijumu
-print("Request url: " + str(nasa_api_url + "rest/v1/feed?start_date=" + request_date + "&end_date=" + request_date + "&api_key=" + nasa_api_key))
+logger.info("Request url: " + str(nasa_api_url + "rest/v1/feed?start_date=" + request_date + "&end_date=" + request_date + "&api_key=" + nasa_api_key))
 r = requests.get(nasa_api_url + "rest/v1/feed?start_date=" + request_date + "&end_date=" + request_date + "&api_key=" + nasa_api_key)
 
 # Izvada konsole pieprasijumu statusu , hederi un ieguto informaciju no NASA API
-print("Response status code: " + str(r.status_code))
-print("Response headers: " + str(r.headers))
-print("Response content: " + str(r.text))
+logger.info("Response status code: " + str(r.status_code))
+logger.info("Response headers: " + str(r.headers))
+logger.info("Response content: " + str(r.text))
 
 # Ja pieprasijums bija veiksmigs turpinam darbu 
 if r.status_code == 200:
@@ -66,7 +66,7 @@ if r.status_code == 200:
 	if 'element_count' in json_data:
 		# Iegustam vertibu par asteroidu skaitu un izvada konsole
 		ast_count = int(json_data['element_count'])
-		print("Asteroid count today: " + str(ast_count))
+		logger.info("Asteroid count today: " + str(ast_count))
     
     # Ja ir vismaz viens asteroids turpinam darbu
 		if ast_count > 0:
@@ -114,7 +114,7 @@ if r.status_code == 200:
 							tmp_ast_close_appr_dt = "1969-12-31 23:59:59"
 					else:
 						# Izvada konsole mesidzu un inizialize vertibas
-						print("No close approach data in message")
+						logger.warning("No close approach data in message")
 						tmp_ast_close_appr_ts = 0
 						tmp_ast_close_appr_dt_utc = "1970-01-01 00:00:00"
 						tmp_ast_close_appr_dt = "1970-01-01 00:00:00"
@@ -122,10 +122,10 @@ if r.status_code == 200:
 						tmp_ast_miss_dist = -1
 
 					# Izvada konsole datu kopsavilkumu par konkreto asteroidu
-					print("------------------------------------------------------- >>")
-					print("Asteroid name: " + str(tmp_ast_name) + " | INFO: " + str(tmp_ast_nasa_jpl_url) + " | Diameter: " + str(tmp_ast_diam_min) + " - " + str(tmp_ast_diam_max) + " km | Hazardous: " + str(tmp_ast_hazardous))
-					print("Close approach TS: " + str(tmp_ast_close_appr_ts) + " | Date/time UTC TZ: " + str(tmp_ast_close_appr_dt_utc) + " | Local TZ: " + str(tmp_ast_close_appr_dt))
-					print("Speed: " + str(tmp_ast_speed) + " km/h" + " | MISS distance: " + str(tmp_ast_miss_dist) + " km")
+					logger.debug("------------------------------------------------------- >>")
+					logger.debug("Asteroid name: " + str(tmp_ast_name) + " | INFO: " + str(tmp_ast_nasa_jpl_url) + " | Diameter: " + str(tmp_ast_diam_min) + " - " + str(tmp_ast_diam_max) + " km | Hazardous: " + str(tmp_ast_hazardous))
+					logger.debug("Close approach TS: " + str(tmp_ast_close_appr_ts) + " | Date/time UTC TZ: " + str(tmp_ast_close_appr_dt_utc) + " | Local TZ: " + str(tmp_ast_close_appr_dt))
+					logger.debug("Speed: " + str(tmp_ast_speed) + " km/h" + " | MISS distance: " + str(tmp_ast_miss_dist) + " km")
 					
 					# Pievieno asteroidu datus array / ir divi limenji safe drosais limenis un hazard ir bistamais limenis 
 					# Adding asteroid data to the corresponding array
@@ -133,27 +133,25 @@ if r.status_code == 200:
 						ast_hazardous.append([tmp_ast_name, tmp_ast_nasa_jpl_url, tmp_ast_diam_min, tmp_ast_diam_max, tmp_ast_close_appr_ts, tmp_ast_close_appr_dt_utc, tmp_ast_close_appr_dt, tmp_ast_speed, tmp_ast_miss_dist])
 					else:
 						ast_safe.append([tmp_ast_name, tmp_ast_nasa_jpl_url, tmp_ast_diam_min, tmp_ast_diam_max, tmp_ast_close_appr_ts, tmp_ast_close_appr_dt_utc, tmp_ast_close_appr_dt, tmp_ast_speed, tmp_ast_miss_dist])
-
 		else:
 			# Izvada pazinjojumu tad kad nav konstates neviens vera njemams asteroids pietiekos tuvu zemei 
-			print("No asteroids are going to hit earth today")
+			logger.info("No asteroids are going to hit earth today")
 	# izvada konsole cik ir biestamie un drosie asteroidi .. izmera cik elementi array un tos parvers par string lai varetu apvienot ar tekstualo dalju
-	print("Hazardous asteorids: " + str(len(ast_hazardous)) + " | Safe asteroids: " + str(len(ast_safe)))
+	logger.info("Hazardous asteorids: " + str(len(ast_hazardous)) + " | Safe asteroids: " + str(len(ast_safe)))
   # Ja ir vismaz viens bistams asteroids tad sasorte tos pec laika un izvada konsole
 	if len(ast_hazardous) > 0:
     # Sortesana pec laika 
 		ast_hazardous.sort(key = lambda x: x[4], reverse=False)
     # Cikls caur bistamo asteroidu array un izvade konsole  
-		print("Today's possible apocalypse (asteroid impact on earth) times:")
+		logger.info("Today's possible apocalypse (asteroid impact on earth) times:")
 		for asteroid in ast_hazardous:
-			print(str(asteroid[6]) + " " + str(asteroid[0]) + " " + " | more info: " + str(asteroid[1]))
+			logger.info(str(asteroid[6]) + " " + str(asteroid[0]) + " " + " | more info: " + str(asteroid[1]))
     # Sorte to pasu array tikai soreiz pec distanci un izvada konsole 
 		ast_hazardous.sort(key = lambda x: x[8], reverse=False)
-		print("Closest passing distance is for: " + str(ast_hazardous[0][0]) + " at: " + str(int(ast_hazardous[0][8])) + " km | more info: " + str(ast_hazardous[0][1]))
+		logger.info("Closest passing distance is for: " + str(ast_hazardous[0][0]) + " at: " + str(int(ast_hazardous[0][8])) + " km | more info: " + str(ast_hazardous[0][1]))
 	else:
 		# Konsole pazinjojums tad kad nav neviena pietiekosi tuvu asteroida zemei
-		print("No asteroids close passing earth today")
-
+		logger.info("No asteroids close passing earth today")
 else:
 	# Izvads konsole par kludu pazinojumu .. respektivi izvada tad kad nav dabuts 200, izvada http response status un body kas satur pazinojumu  
-	print("Unable to get response from API. Response code: " + str(r.status_code) + " | content: " + str(r.text))
+	logger.error("Unable to get response from API. Response code: " + str(r.status_code) + " | content: " + str(r.text))
