@@ -3,23 +3,39 @@ import json
 import datetime
 import time
 import yaml
-
+import os
+import logging
+import logging.config
 from datetime import datetime
 from configparser import ConfigParser
 
-# Nolasa arejo konfiguracijas failu 
-print('Load config')
-config = ConfigParser()
-config.read('config.ini')
+# Inizialize python logging moduli
+log_config_path = './log_worker.yaml'
+if os.path.exists(log_config_path):
+	with open(log_config_path,'r') as stream:
+		log_config = yaml.safe_load(stream)
+else:
+  print('ERROR - Cant read logging config file from {}'.format(log_config_path))
+  exit()
+
+logging.config.dictConfig(log_config)
+
+# Creating logger
+logger = logging.getLogger('root')
 
 print('Asteroid processing service')
 
 # Initiating and reading config values
-print('Loading configuration from file')
-
 # Nolasa parametrus no ieladeta konfiguracijas faila un saglaba tos python mainigajos
-nasa_api_key = config.get('nasa', 'api_key')
-nasa_api_url = config.get('nasa', 'api_url')
+logger.info('Loading configuration from file')
+try:
+	config = ConfigParser()
+	config.read('config.ini')
+
+	nasa_api_key = config.get('nasa', 'api_key')
+	nasa_api_url = config.get('nasa', 'api_url')
+except:
+	logger.exception('')
 
 # Izvada konsole si briza datumu 
 # Getting todays date
