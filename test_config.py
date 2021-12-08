@@ -1,7 +1,7 @@
 import os
 import requests
 import mysql.connector
-
+import yaml
 from datetime import datetime
 from configparser import ConfigParser
 
@@ -55,7 +55,6 @@ connection = mysql.connector.connect(host=mysql_config_mysql_host, database=mysq
 assert connection.is_connected() == True
 print("OK")
 print("----------")
-
 # Checking if log config files exist for log config
 print("Checking if DB migration component log config file exists log_migrate_db.yaml -->")
 assert os.path.isfile("log_migrate_db.yaml") == True
@@ -74,4 +73,15 @@ assert os.path.isdir("migrations") == True
 print("OK")
 print("----------")
 print("Configuration file test DONE -> ALL OK")
-print("----------------------------------------")
+print("----------")
+print("Checking if logging file path is defined in log config file log_worker.yaml -->")
+log_config_path = './log_worker.yaml'
+with open(log_config_path,'r') as stream:
+  log_config = yaml.safe_load(stream)
+assert os.path.isfile(log_config['handlers']['file']['filename']) == True
+print("OK")
+print("----------")
+print("Checking if logging level is defined in log config file log_worker.yaml -->")
+assert len(log_config['handlers']['file']['level']) > 4
+print("OK")
+
