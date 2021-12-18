@@ -10,6 +10,9 @@ cd astroEvent
 ```
 
 cp config.ini.template config.ini
+cp log_migrate_db.yaml.dev log_migrate_db.yaml
+cp log_worker.yaml.dev log_worker.yaml
+
 nano config.ini
 ```
 ```
